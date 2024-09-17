@@ -19,6 +19,9 @@ import UIKit
 /// Web3Modal.instance.getSessions()
 /// ```
 public class Web3Modal {
+
+    public static var connectedWalletPairingTopic: String?
+
     /// Web3Modalt client instance
     public static var instance: Web3ModalClient = {
         guard let config = Web3Modal.config else {
@@ -34,15 +37,10 @@ public class Web3Modal {
         
         let store = Store.shared
         
-        if let session = client.getSessions().first {
+        if let session = Web3Modal.connectedWalletPairingTopic == nil ? client.getSessions().first : client.getSessions().first(where: { $0.pairingTopic == Web3Modal.connectedWalletPairingTopic }) {
             store.session = session
             store.connectedWith = .wc
             store.account = .init(from: session)
-        } else if CoinbaseWalletSDK.shared.isConnected() {
-            
-            let storedAccount = AccountStorage.read()
-            store.connectedWith = .cb
-            store.account = storedAccount
         } else {
             AccountStorage.clear()
         }
@@ -144,6 +142,7 @@ public class Web3Modal {
             blockchainApiInteractor: blockchainApiInteractor,
             supportsAuthenticatedSession: (config.authRequestParams != nil)
         )
+
         
         Task {
             try? await w3mApiInteractor.fetchWalletImages(for: store.recentWallets + store.customWallets)

@@ -169,7 +169,7 @@ public class Web3ModalClient {
         switch store.connectedWith {
         case .wc:
             guard
-                let session = getSessions().first,
+                let session = Web3Modal.connectedWalletPairingTopic == nil ? getSessions().first : getSessions().first(where: { $0.pairingTopic == Web3Modal.connectedWalletPairingTopic }),
                 let chain = getSelectedChain(),
                 let blockchain = Blockchain(namespace: chain.chainNamespace, reference: chain.chainReference)
             else { return }

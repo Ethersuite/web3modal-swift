@@ -52,7 +52,9 @@ final class W3MAPIInteractor: ObservableObject {
         try await fetchWalletImages(for: response.data)
         
         DispatchQueue.main.async { [self] in
-            var wallets = response.data
+            var wallets = response.data.filter {
+                !Web3Modal.config.excludedWalletIds.contains($0.id)
+            }
                 
             for index in wallets.indices {
                 let contains = store.installedWalletIds.contains(wallets[index].id)
@@ -71,7 +73,7 @@ final class W3MAPIInteractor: ObservableObject {
                 self.totalEntries = response.count
                 self.store.totalPages = Int(ceil(Double(response.count) / Double(entriesPerPage)))
             }
-            
+
             self.isLoading = false
         }
     }
@@ -123,7 +125,9 @@ final class W3MAPIInteractor: ObservableObject {
         
         DispatchQueue.main.async { [self] in
             
-            var wallets = response.data
+            var wallets = response.data.filter {
+                !Web3Modal.config.excludedWalletIds.contains($0.id)
+            }
             
             for index in wallets.indices {
                 let contains = store.installedWalletIds.contains(wallets[index].id)
