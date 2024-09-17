@@ -123,6 +123,41 @@ public class Web3ModalClient {
     }
     
     /// For proposing a session to a wallet.
+       /// Function will propose a session on existing pairing or create new one if not specified
+       /// Namespaces from Web3Modal.config will be used
+       /// - Parameters:
+       ///   - topic: pairing topic
+       public func connect(
+           topic: String?
+       ) async throws -> WalletConnectURI? {
+           logger.debug("Connecting Application")
+           do {
+               if let topic = topic {
+                   try pairingClient.validatePairingExistance(topic)
+                   try await signClient.connect(
+                       requiredNamespaces: Web3Modal.config.sessionParams.requiredNamespaces,
+                       optionalNamespaces: Web3Modal.config.sessionParams.optionalNamespaces,
+                       sessionProperties: Web3Modal.config.sessionParams.sessionProperties,
+                       topic: topic
+                   )
+                   return nil
+               } else {
+                   let pairingURI = try await pairingClient.create()
+                   try await signClient.connect(
+                       requiredNamespaces: Web3Modal.config.sessionParams.requiredNamespaces,
+                       optionalNamespaces: Web3Modal.config.sessionParams.optionalNamespaces,
+                       sessionProperties: Web3Modal.config.sessionParams.sessionProperties,
+                       topic: pairingURI.topic
+                   )
+                   return pairingURI
+               }
+           } catch {
+               Web3Modal.config.onError(error)
+               throw error
+           }
+       }
+    
+    /// For proposing a session to a wallet.
     /// Function will propose a session on existing pairing or create new one if not specified
     /// Namespaces from Web3Modal.config will be used
     /// - Parameters:
