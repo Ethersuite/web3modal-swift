@@ -106,15 +106,16 @@ final class NetworkDetailViewModel: ObservableObject {
     
     @MainActor
     func switchChain(_ to: Chain) async {
-        guard let from = store.selectedChain else { return }
+        guard let session = store.walletSession,
+              let from = store.selectedChain else {
+            return
+        }
         
         do {
-            try await switchEthChain(from: from, to: to)
+            try await switchEthChain(from: from, to: to, session: session)
         } catch {
             Web3Modal.config.onError(error)
         }
-        
-        guard let session = store.session else { return }
         
         if
             let urlString = session.peer.redirect?.native ?? session.peer.redirect?.universal,
@@ -129,7 +130,8 @@ final class NetworkDetailViewModel: ObservableObject {
     @MainActor
     private func switchEthChain(
         from: Chain,
-        to: Chain
+        to: Chain,
+        session: Session
     ) async throws {
         guard let chainIdNumber = Int(to.chainReference) else { return }
         
@@ -137,9 +139,7 @@ final class NetworkDetailViewModel: ObservableObject {
         case .wc:
             
             let chainHex = String(format: "%X", chainIdNumber)
-            
-            guard let session = store.session else { return }
-            
+
             try await Web3Modal.instance.request(params:
                     .init(
                         topic: session.topic,

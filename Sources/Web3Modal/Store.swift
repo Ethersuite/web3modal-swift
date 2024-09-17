@@ -39,6 +39,10 @@ class Store: ObservableObject {
     }
     
     // WalletConnect specific
+    var walletSession: Session? {
+        Web3Modal.instance.getSessions().first(where: { $0.pairingTopic == Web3Modal.connectedWalletPairingTopic }) ?? Web3Modal.instance.getSessions().first
+    }
+    
     @Published var session: Session? {
         didSet {
             if let blockchain = session?.accounts.first?.blockchain {

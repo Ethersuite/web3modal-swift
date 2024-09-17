@@ -207,7 +207,7 @@ class Web3ModalViewModel: ObservableObject {
     }
     
     func getMethods() -> [String] {
-        guard let session = store.session else {
+        guard let session = store.walletSession else {
             return []
         }
         
