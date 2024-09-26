@@ -178,7 +178,7 @@ class Web3ModalViewModel: ObservableObject {
 
 
     func getChains() -> [Chain] {
-        guard let namespaces = store.session?.namespaces.values else {
+        guard let namespaces = store.walletSession?.namespaces.values else {
             return []
         }
         
@@ -189,7 +189,7 @@ class Web3ModalViewModel: ObservableObject {
                 isChainIdCAIP2Compliant(chainId: chain.absoluteString)
             }
         
-        if let requiredNamespaces = store.session?.requiredNamespaces.values {
+        if let requiredNamespaces = store.walletSession?.requiredNamespaces.values {
             let requiredChains = requiredNamespaces
                 .compactMap { $0.chains }
                 .flatMap { $0 }
